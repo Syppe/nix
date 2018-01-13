@@ -1,0 +1,32 @@
+#!/bin/bash
+
+ 
+
+if [ ! -f ./magento/app/etc/local.xml ]; then
+    echo "-- ERROR"
+    echo "-- This doesn't look like a Magento install.  Please make sure"
+    echo "-- that you are running this from the Magento main doc root dir"
+    exit
+fi
+
+if [ `id -u` != 0 ]; then
+    echo "-- ERROR"
+    echo "-- This script should be run as root so that file ownership"
+    echo "-- changes can be set correctly"
+    exit
+fi
+
+echo -n "Enter the UNIX user which the Magento scripts should run as: "
+read user
+
+if [ ! `id -u $user` ]; then
+    echo "-- ERROR"
+    echo "-- No such user: $user"
+    exit
+fi
+ 
+find ./magento \-exec chown $user.$user {} \;
+find ./magento -type f \-exec chmod 644 {} \;
+find ./magento -type d \-exec chmod 711 {} \;
+find ./magento -type f -name "*.php" \-exec chmod 600 {} \;
+chmod 600 ./magento/app/etc/*.xml
